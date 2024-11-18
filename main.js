@@ -8,12 +8,14 @@ const API_URL_MOVIE_DETAILS = `https://kinopoiskapiunofficial.tech/api/v2.2/film
 const API_URL_MOVIE_SEARCH = `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=`
 let currentPage = 1;
 
-async function movieListGet(currentPaginationPage) {
+async function movieListGet(currentPaginationPage, searchUrl) {
   !currentPaginationPage ? currentPaginationPage = 1 : currentPaginationPage 
-  let currentAPI = API_URL_MOVIE_PAGE + currentPaginationPage
-  console.log(currentPaginationPage)
+  let moviePageApi = API_URL_MOVIE_PAGE + currentPaginationPage
+  let movieSearch = searchUrl || moviePageApi 
+  console.log(movieSearch)
+
   const result = await fetch(
-    currentAPI,
+    movieSearch ,
     {
       method: "GET",
       headers: {
@@ -23,18 +25,17 @@ async function movieListGet(currentPaginationPage) {
     }
   );
   const data = await result.json();
+  console.log(data)
   clearMovieList();
   renderMovie(data);
   renderPagination(data.totalPages,currentPaginationPage )
-  console.log()
 
 }
 
 
 
 function renderMovieList(movie) {
-  
-  let movieList = `<section id='${movie.kinopoiskId}' class="movie__list-card">
+  let movieList = `<section id='${movie.kinopoiskId || movie.filmId}' class="movie__list-card">
                   <div class="movie__card-image">
                     <img width="350" src="${movie.posterUrlPreview}" alt="#" />
                   </div>
@@ -42,7 +43,7 @@ function renderMovieList(movie) {
                     <h3 class="movie__card-title">${movie.nameRu}</h3>
                   </div>
                   <div class="movie__card-footer">
-                    <span class="movie__card-rating">Рэйтинг: ${movie.ratingKinopoisk}</span>
+                    <span class="movie__card-rating">Рэйтинг: ${movie.ratingKinopoisk || movie.rating}</span>
                     <button class="movie__card-button">Подробнее</button>
                   </div>
                 </section>`;
@@ -96,8 +97,6 @@ async function currentPageClick(event) {
   }
   
   let currentPaginationPage = Number(event.target.textContent)
-  console.log(currentPaginationPage)
-
 
   let currentLi = document.querySelector(".movie__pagination-item.active");
   currentLi.classList.remove("active");
@@ -110,7 +109,7 @@ async function currentPageClick(event) {
 }
  function renderMovie(data) {
   let movieArr = null;
-  movieArr = data.items;
+  movieArr = data.items || data.films;
   movieArr.forEach((movie) => {
     if (movie.nameRu) {
       renderMovieList(movie);
@@ -177,8 +176,12 @@ window.addEventListener("keydown", (e) => {
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const apiSearchUrl = `${API_URL_MOVIE_SEARCH}${search.value}`
+  
+
   if(search.value) {
-    
+    movieListGet(1, apiSearchUrl)
+
+  
   }
   
 })
