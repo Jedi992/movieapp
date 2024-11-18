@@ -10,6 +10,7 @@ let currentPage = 1;
 
 async function movieListGet(currentPaginationPage) {
   !currentPaginationPage ? currentPaginationPage = 1 : currentPaginationPage 
+  let currentAPI = API_URL_MOVIE_PAGE + currentPaginationPage
   console.log(currentPaginationPage)
   const result = await fetch(
     currentAPI,
