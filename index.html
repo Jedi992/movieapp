@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="reset.css" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Movie App</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <div class="container">
+          <div class="header__wrapper">
+            <h1 class="header__title">
+              <a class="header__title-link" href="#">Movie App</a>
+            </h1>
+            <form class="header__search-form">
+              <input
+                class="header__search-input"
+                type="text"
+                placeholder="Поиск..."
+              />
+            </form>
+            <nav class="header__nav">
+              <ul class="header__menu">
+                <li class="header__menu-item">
+                  <a class="header__menu-link" href="#">Главная</a>
+                </li>
+                <li class="header__menu-item">
+                  <a class="header__menu-link" href="#">Желамое</a>
+                </li>
+                <li class="header__menu-item">
+                  <a class="header__menu-link" href="#">О нас</a>
+                </li>
+                <li class="header__menu-item">
+                  <a class="header__menu-link" href="#">Контакты</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </header>
+      <main>
+        <div class="container">
+          <div class="main__wrapper">
+            <article class="movie__list">
+              <div class="movie__list-menu">
+                <h2 class="movie__list-title">Список фильмов</h2>
+                <button class="movie__list-sort">Сортировка</span>
+              </div>
+              <div class="movie__list-grid"></div>
+            </article>
+            <div class="modal">
+            </div>
+            <div class="movie__pagination">
+              <ul class="movie__pagination-list">
+                
+              </ul>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer>
+        <div class="container">
+          <div class="footer__wrapper">
+            <h3 class="footer__wrapper-title">
+              Разработал: крутой супер пупер разраб
+            </h3>
+            <p class="footer__wraper-contact">
+              еще вот что-то скоро может быть
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script defer type="module" src="/main.js"></script>
+  </body>
+</html>
