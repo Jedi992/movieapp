@@ -2,6 +2,8 @@ const list = document.querySelector(".movie__list-grid");
 const paginationList = document.querySelector(".movie__pagination-list");
 const form = document.querySelector(".header__search-form")
 const search = document.querySelector(".header__search-input")
+const popupModal  = document.querySelector(".popup")
+const popupButton = document.querySelector(".popup-btn")
 const API_KEY = "e5e5b828-9eeb-46de-957b-6540197a5d52"
 const API_URL_MOVIE_PAGE = `https://kinopoiskapiunofficial.tech/api/v2.2/films?page=`
 const API_URL_MOVIE_DETAILS = `https://kinopoiskapiunofficial.tech/api/v2.2/films/`
@@ -12,7 +14,6 @@ async function movieListGet(currentPaginationPage, searchUrl) {
   !currentPaginationPage ? currentPaginationPage = 1 : currentPaginationPage 
   let moviePageApi = API_URL_MOVIE_PAGE + currentPaginationPage
   let movieSearch = searchUrl || moviePageApi 
-  console.log(movieSearch)
 
   const result = await fetch(
     movieSearch ,
@@ -33,7 +34,6 @@ async function movieListGet(currentPaginationPage, searchUrl) {
 }
 
 
-
 function renderMovieList(movie) {
   let movieList = `<section id='${movie.kinopoiskId || movie.filmId}' class="movie__list-card">
                   <div class="movie__card-image">
@@ -44,22 +44,25 @@ function renderMovieList(movie) {
                   </div>
                   <div class="movie__card-footer">
                     <span class="movie__card-rating">Рэйтинг: ${movie.ratingKinopoisk || movie.rating}</span>
-                    <button class="movie__card-button">Подробнее</button>
+                    <button class="movie__card-button">Добавить в желаемое</button>
                   </div>
                 </section>`;
   list.insertAdjacentHTML("beforeend", movieList);
-
 }
-async function renderModal(data) {
 
+async function renderModal(data) {
+  const img = new Image()
+  img.src = data.posterUrl
+  await img.decode()
   modalEl.innerHTML = `
   <div class="modal__card">
   <img class="modal__movie-backdrop" src=${data.posterUrl} alt="modal">
   <h2>
   <span class="modal__movie-title">Название - ${data.nameRu
   }</span>
-  <span class="modal__movie-release-year">Год - ${data.year}</span>
+  
   </h2>
+  <span class="modal__movie-release-year">Год - ${data.year}</span>
   <ul class="modal__movie-info">
   <div class="loader"></div>
   <li class="modal__movie-genre">Жанр - ${data.genres.map((el)=> `<span>${el.genre}</span>`)}</li>
@@ -72,6 +75,19 @@ async function renderModal(data) {
   `
   
 }
+
+function renderMovie(data) {
+  let movieArr = null;
+  movieArr = data.items || data.films;
+  movieArr.forEach((movie) => {
+    if (movie.nameRu || movie.rating ) {
+      renderMovieList(movie);
+    }
+  });
+  
+
+}
+
 function renderPagination (totalPages,currentPaginationPage){
 
   paginationList.innerHTML = ''
@@ -87,9 +103,7 @@ function renderPagination (totalPages,currentPaginationPage){
   
   
 }
-function clearMovieList() {
-  list.innerHTML = "";
-}
+
 
 async function currentPageClick(event) {
   if (event.target.closest(".movie__pagination-item") === null) {
@@ -107,26 +121,7 @@ async function currentPageClick(event) {
   
   
 }
- function renderMovie(data) {
-  let movieArr = null;
-  movieArr = data.items || data.films;
-  movieArr.forEach((movie) => {
-    if (movie.nameRu) {
-      renderMovieList(movie);
-
-    }
-  });
-  list.addEventListener("click", (event) => { 
-    const movieCardId =  event.target.closest('.movie__list-card')
-    const movieCardBtn =  event.target.closest('.movie__card-button')
-    if(movieCardBtn) {
-      const movieId = movieCardId.id
-     openModal(movieId);
-    }
-  }
-)
-
-}
+ 
 
 const modalEl = document.querySelector(".modal")
 
@@ -143,7 +138,7 @@ async function openModal(id) {
     }
   );
   const data = await result.json();
-  await renderModal(data)
+    await renderModal(data)
   
 modalEl.classList.add("modal--show")
 const btnClose = document.querySelector(".modal__button-close")
@@ -155,11 +150,11 @@ btnClose.addEventListener("click" ,() => closeModal())
 function closeModal() {
   modalEl.classList.remove("modal--show")
 }
+function clearMovieList() {
+  list.innerHTML = "";
+}
 
 movieListGet();
-
-paginationList.addEventListener("click", currentPageClick);
-
 
 window.addEventListener("click", (e) => {
   if(e.target === modalEl) {
@@ -173,15 +168,61 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
+list.addEventListener("click", (event) => { 
+  if(event.target.closest('.movie__card-button')){ 
+    return
+  }
+  const movieCardId =  event.target.closest('.movie__list-card')
+  const movieCardBtn =  event.target.closest('.movie__card-button')
+  if(movieCardId) {
+    const movieId = movieCardId.id
+   openModal(movieId);
+  }
+}
+)
+
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const apiSearchUrl = `${API_URL_MOVIE_SEARCH}${search.value}`
-  
-
   if(search.value) {
+
     movieListGet(1, apiSearchUrl)
 
-  
   }
-  
+  scrollTo(0, 0);
+
 })
+
+
+paginationList.addEventListener("click", currentPageClick);
+
+console.log(popupButton)
+
+console.log(popupModal)
+
+
+popupButton.addEventListener("click", () => {
+  
+  popupModal.classList.add('active')
+})
+
+function closePopup() {
+  popupModal.classList.remove("active")
+}
+
+window.addEventListener("keydown", (e) => {
+  if(e.keyCode === 27) {
+    closePopup()
+  }
+})
+window.addEventListener("click", (e) => {
+  if(e.target === event.target.closest(".popup__body")) {
+    closePopup()
+  }
+})
+
+
+
+
+
+
