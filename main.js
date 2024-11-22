@@ -4,12 +4,14 @@ const form = document.querySelector(".header__search-form")
 const search = document.querySelector(".header__search-input")
 const popupModal  = document.querySelector(".popup")
 const popupButton = document.querySelector(".popup-btn")
-const API_KEY = "e5e5b828-9eeb-46de-957b-6540197a5d52"
+const addButtonPopup = document.querySelector(".movie__card-button")
+// "e5e5b828-9eeb-46de-957b-6540197a5d52"
+const API_KEY = '229eed78-a9a7-44b0-ae3b-73d7798e927c'
+// 229eed78-a9a7-44b0-ae3b-73d7798e927c
 const API_URL_MOVIE_PAGE = `https://kinopoiskapiunofficial.tech/api/v2.2/films?page=`
 const API_URL_MOVIE_DETAILS = `https://kinopoiskapiunofficial.tech/api/v2.2/films/`
 const API_URL_MOVIE_SEARCH = `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=`
-let currentPage = 1;
-
+let popupArr = []
 async function movieListGet(currentPaginationPage, searchUrl) {
   !currentPaginationPage ? currentPaginationPage = 1 : currentPaginationPage 
   let moviePageApi = API_URL_MOVIE_PAGE + currentPaginationPage
@@ -26,11 +28,9 @@ async function movieListGet(currentPaginationPage, searchUrl) {
     }
   );
   const data = await result.json();
-  console.log(data)
   clearMovieList();
   renderMovie(data);
   renderPagination(data.totalPages,currentPaginationPage )
-
 }
 
 
@@ -73,8 +73,49 @@ async function renderModal(data) {
   <button type="button" class="modal__button-close">Закрыть</button>
   </div>
   `
+}
+
+
+let popupListMovie = document.querySelector('.popup__list-movie')
+
+function renderPopup(movie) {
+  
+  
+  popupListMovie.innerHTML += `<li id="${movie.kinopoiskId}" class="popup__list-item">
+
+                      <div class="popup__item-info">
+                        <img class="popup__list-img"
+                          src="${movie.posterUrlPreview}" alt="poster">
+                        <div class="popup__item-wrapper">
+                          <div class="popup__item-block">
+                            <p class="popup__item-title">${movie.nameRu}
+                            </p>
+                            <span class="popup__item-rating">${movie.ratingKinopoisk}</span>
+                          </div>
+                          <div class="popup__item-genre">
+                            <p>Жанр: ${movie.genres.map(elem => elem.genre)}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="block-btn">
+                        <div class="block__btn-delte">
+                          <button class="item-btn">Удалить</button>
+                        </div>
+                        <div class="block__btn-updown">
+                          <button class="item__btn-up">Вверх</button>
+                          <button class="item__btn-down">Вниз</button>
+                        </div>
+                      </div>
+                    </li>`
   
 }
+
+function renderPopupEach() {
+  
+  popupListMovie.innerHTML = ''
+  popupArr.forEach(elem => renderPopup(elem) )
+}
+
 
 function renderMovie(data) {
   let movieArr = null;
@@ -168,6 +209,8 @@ window.addEventListener("keydown", (e) => {
   }
 })
 
+
+
 list.addEventListener("click", (event) => { 
   if(event.target.closest('.movie__card-button')){ 
     return
@@ -175,6 +218,7 @@ list.addEventListener("click", (event) => {
   const movieCardId =  event.target.closest('.movie__list-card')
   const movieCardBtn =  event.target.closest('.movie__card-button')
   if(movieCardId) {
+    
     const movieId = movieCardId.id
    openModal(movieId);
   }
@@ -196,9 +240,7 @@ form.addEventListener("submit", (e) => {
 
 paginationList.addEventListener("click", currentPageClick);
 
-console.log(popupButton)
 
-console.log(popupModal)
 
 
 popupButton.addEventListener("click", () => {
@@ -221,8 +263,43 @@ window.addEventListener("click", (e) => {
   }
 })
 
+let isAddingMovie = false
+async function popupAdd(popupid) {
+  if(isAddingMovie) {
+    return
+  }
+  
+    const result = await fetch(
+      API_URL_MOVIE_DETAILS + popupid,
+        {
+          method: "GET",
+          headers: {
+            "X-API-KEY": API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await result.json();
+    if(!popupArr.find(elem => elem.kinopoiskId === popupid)) {
+      popupArr.push(data)
+      popupArr.forEach(elem => renderPopupEach(elem))
+      console.log(popupArr)
+      isAddingMovie = false
+  
+    }
+  } 
+  
+    
+  
+ 
 
 
+ list.addEventListener('click', (e) => {
 
+  if(e.target.closest('.movie__card-button')){ 
+    let popupIdBtn = e.target.closest('.movie__list-card');
+   popupAdd(Number(popupIdBtn.id));
+   
+}});
 
 
