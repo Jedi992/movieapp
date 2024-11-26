@@ -5,13 +5,15 @@ const search = document.querySelector(".header__search-input")
 const popupModal  = document.querySelector(".popup")
 const popupButton = document.querySelector(".popup-btn")
 const addButtonPopup = document.querySelector(".movie__card-button")
-// "e5e5b828-9eeb-46de-957b-6540197a5d52"
-const API_KEY = '229eed78-a9a7-44b0-ae3b-73d7798e927c'
-// 229eed78-a9a7-44b0-ae3b-73d7798e927c
+const cartListText = document.querySelector(".popup__text-span")
+const API_KEY = "" // Ваш API-ключ
 const API_URL_MOVIE_PAGE = `https://kinopoiskapiunofficial.tech/api/v2.2/films?page=`
 const API_URL_MOVIE_DETAILS = `https://kinopoiskapiunofficial.tech/api/v2.2/films/`
 const API_URL_MOVIE_SEARCH = `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=`
 let popupArr = []
+
+
+
 async function movieListGet(currentPaginationPage, searchUrl) {
   !currentPaginationPage ? currentPaginationPage = 1 : currentPaginationPage 
   let moviePageApi = API_URL_MOVIE_PAGE + currentPaginationPage
@@ -100,20 +102,19 @@ function renderPopup(movie) {
                       <div class="block-btn">
                         <div class="block__btn-delte">
                           <button class="item-btn">Удалить</button>
-                        </div>
-                        <div class="block__btn-updown">
-                          <button class="item__btn-up">Вверх</button>
-                          <button class="item__btn-down">Вниз</button>
-                        </div>
                       </div>
                     </li>`
   
 }
 
 function renderPopupEach() {
-  
+  if(popupArr.length === 0) {
+    cartListText.style.display = "block"
+  } else {
+    cartListText.style.display = "none"
+  }
   popupListMovie.innerHTML = ''
-  popupArr.forEach(elem => renderPopup(elem) )
+  popupArr.forEach(elem =>  renderPopup(elem) )
 }
 
 
@@ -283,15 +284,22 @@ async function popupAdd(popupid) {
     if(!popupArr.find(elem => elem.kinopoiskId === popupid)) {
       popupArr.push(data)
       popupArr.forEach(elem => renderPopupEach(elem))
-      console.log(popupArr)
       isAddingMovie = false
-  
     }
   } 
   
-    
   
- 
+
+  popupListMovie.addEventListener('click',(e) => {
+    if(!e.target.closest('.item-btn')) {
+      return
+  }
+  let popupBtnCard = e.target.closest('.popup__list-item');
+  Number(popupBtnCard.id)
+  popupArr = popupArr.filter((elem) => elem.kinopoiskId !== Number(popupBtnCard.id))
+  renderPopupEach()
+})
+  
 
 
  list.addEventListener('click', (e) => {
@@ -301,5 +309,3 @@ async function popupAdd(popupid) {
    popupAdd(Number(popupIdBtn.id));
    
 }});
-
-
